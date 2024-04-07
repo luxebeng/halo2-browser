@@ -35,6 +35,15 @@ use wasm_bindgen::prelude::*;
 pub use halo2_base;
 pub use halo2_base::halo2_proofs;
 
+use move_binary_format::file_format::empty_script;
+use move_binary_format::file_format::Bytecode as MoveBytecode;
+//use movelang::compiler::compile_source_files;
+use std::marker::PhantomData;
+use vm::runtime::Runtime;
+use vm::state::StateStore;
+use vm_circuit::circuit::VmCircuit;
+use vm_circuit::witness::CircuitConfig as vmCircuitConfig;
+
 #[cfg(all(target_family = "wasm", feature = "rayon"))]
 pub use wasm_bindgen_rayon::init_thread_pool;
 
@@ -79,6 +88,84 @@ pub struct CircuitConfig {
     num_instance: usize,
     num_lookup_bits: usize,
     num_virtual_instance: usize,
+}
+
+#[wasm_bindgen]
+pub struct VMWasm {
+    circuit: Option<VmCircuit<Fr>>,
+}
+
+impl Default for VMWasm {
+    fn default() -> Self {
+        console_log!("vm default creating");
+        let mut script = empty_script();
+        script.code.code = vec![
+            MoveBytecode::LdU64(1u64),
+            MoveBytecode::LdU64(2u64),
+            MoveBytecode::Add,
+            MoveBytecode::Pop,
+            MoveBytecode::Ret,
+        ];
+        let runtime = Runtime::new();
+        let mut data_store = StateStore::new();
+        let circuit_config = vmCircuitConfig::default()
+            .stack_ops_num(Some(20))
+            .locals_ops_num(Some(20));
+        let trace = runtime
+            .execute_script(script.clone(), vec![], None, None, &mut data_store)
+            .expect("execute script failed.");
+        let witness = runtime
+            .process_execution_trace(vec![], Some(script), None, vec![], trace, circuit_config)
+            .expect("process execution trace failed.");
+        let vm_circuit = VmCircuit {
+            witness,
+            public_input: None,
+            _maker: PhantomData,
+        };
+
+        console_log!("vm default done");
+        VMWasm {
+            circuit: Some(vm_circuit),
+        }
+    }
+}
+
+#[wasm_bindgen]
+impl VMWasm {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    // #[allow(clippy::type_complexity)]
+    // pub fn gen_witness(script_file: &str) -> VMWasm {
+    //     console_log!("Run test {:?}", script_file);
+    //     let targets = vec![script_file.to_string()];
+    //     let (compiled_script, _compiled_modules) =
+    //         compile_source_files(targets).expect("compile file failed");
+    //     let script = compiled_script.expect("script is missing");
+    //     let runtime = Runtime::new();
+    //     let mut data_store = StateStore::new();
+    //     let circuit_config = vmCircuitConfig::default()
+    //         .stack_ops_num(Some(20))
+    //         .locals_ops_num(Some(20));
+    //     let trace = runtime
+    //         .execute_script(script.clone(), vec![], None, None, &mut data_store)
+    //         .expect("execute script failed.");
+    //     let witness = runtime
+    //         .process_execution_trace(vec![], Some(script), None, vec![], trace, circuit_config)
+    //         .expect("process execution trace failed.");
+    //     let vm_circuit = VmCircuit {
+    //         witness,
+    //         public_input: None,
+    //         _maker: PhantomData,
+    //     };
+
+    //     console_log!("gen witness finished");
+    //     VMWasm {
+    //         circuit: Some(vm_circuit),
+    //     }
+    // }
 }
 
 #[wasm_bindgen]

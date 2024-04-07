@@ -1,6 +1,6 @@
 {
-  "name": "@axiom-crypto/halo2-wasm",
-  "description": "Halo2 wasm bindings",
+  "name": "@zkmove-wasm",
+  "description": "zkmove wasm bindings",
   "version": "0.3.4",
   "main": "index.js",
   "types": "index.d.ts",
@@ -8,8 +8,6 @@
     "build": "./scripts/build.sh"
   },
   "keywords": [
-    "axiom",
-    "ethereum",
     "zero knowledge",
     "zk",
     "coprocessor",

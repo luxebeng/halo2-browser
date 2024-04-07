@@ -1,10 +1,10 @@
 [package]
-name = "halo2-wasm"
+name = "zkmove-wasm"
 version = "0.3.4"
 authors = ["Intrinsic Technologies"]
 license = "MIT"
 edition = "2021"
-repository = "https://github.com/axiom-crypto/halo2-browser/halo2-wasm"
+#repository = "https://github.com/axiom-crypto/halo2-browser/halo2-wasm"
 readme = "readme.md"
 description = "Wasm bindings for the halo2 circuit library."
 rust-version = "1.73.0"
@@ -15,6 +15,14 @@ crate-type = ["cdylib", "lib"]
 
 [dependencies]
 wasm-bindgen = { version = "0.2.87" }
+
+move-binary-format = { git = "https://github.com/young-rocks/move", rev = "b036995a" }
+
+error = { path = "../../zkmove-vm/common/error" }
+logger = { path = "../../zkmove-vm/common/logger" }
+movelang = { path = "../../zkmove-vm/movelang" }
+vm = { path = "../../zkmove-vm/vm" }
+vm-circuit = { path = "../../zkmove-vm/vm-circuit" }
 
 halo2-base = { version = "0.4.1", features = ["halo2-axiom"] }
 # halo2-base = { git = "https://github.com/axiom-crypto/halo2-lib.git", branch = "main", features = ["halo2-axiom"] }
