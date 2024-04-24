@@ -26,24 +26,9 @@ vm-circuit = { path = "../../zkmove-vm/vm-circuit" }
 
 
 halo2-base = { git = "https://github.com/axiom-crypto/halo2-lib", tag = "v0.4.1-git", default-features=false, features=["halo2-pse", "display"] }
-halo2-ecc = { git = "https://github.com/axiom-crypto/halo2-lib", tag = "v0.4.1-git", optional = true, default-features=false, features=["halo2-pse", "display"] }
+halo2-ecc = { git = "https://github.com/axiom-crypto/halo2-lib", tag = "v0.4.1-git", default-features=false, features=["halo2-pse", "display"] }
 snark-verifier-sdk = { git = "https://github.com/axiom-crypto/snark-verifier", tag = "v0.1.7-git", default-features = false, features = ["loader_halo2", "halo2-pse"] }
 snark-verifier = { git = "https://github.com/axiom-crypto/snark-verifier", tag = "v0.1.7-git", default-features = false, features = ["loader_halo2", "halo2-pse"] }
-
-#halo2-base = { git = "https://github.com/zkmove/halo2-lib", branch = "aggr", default-features=false, features=["halo2-pse","display"] }
-#halo2-base = { version = "0.4.1", features = ["halo2-axiom"] }
-# halo2-base = { git = "https://github.com/axiom-crypto/halo2-lib.git", branch = "main", features = ["halo2-axiom"] }
-
-#halo2-ecc = { git = "https://github.com/zkmove/halo2-lib", branch = "aggr", optional = true, default-features=false, features=["halo2-pse","display"] }
-#halo2-ecc = { version = "0.4.1", default-features = false, features = ["halo2-pse"] }
-# halo2-ecc = { git = "https://github.com/axiom-crypto/halo2-lib.git", branch = "main", default-features = false, features = ["halo2-axiom"] }
-
-#snark-verifier-sdk = { git = "https://github.com/zkmove/snark-verifier", branch = "aggr", default-features = true, features = ["loader_halo2", "halo2-pse"] }
-#snark-verifier-sdk = { version = "0.1.7", default-features = false, features = ["loader_halo2", "halo2-axiom"] }
-# snark-verifier-sdk = { git = "https://github.com/axiom-crypto/snark-verifier.git", branch = "main", default-features = false, features = ["loader_halo2", "halo2-axiom"] }
-#snark-verifier = { git = "https://github.com/zkmove/snark-verifier", branch = "aggr", default-features = true, features = ["loader_halo2", "halo2-pse"] }
-#snark-verifier = { version = "0.1.7", default-features = false, features = ["loader_halo2", "halo2-pse"] }
-# snark-verifier = { git = "https://github.com/axiom-crypto/snark-verifier.git", branch = "main", default-features = false, features = ["loader_halo2", "halo2-axiom"] }
 
 getrandom = { version = "0.2", features = ["js"] }
 rand = "0.8"

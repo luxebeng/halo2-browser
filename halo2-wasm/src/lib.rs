@@ -8,7 +8,8 @@ use halo2_base::{
     gates::circuit::{builder::BaseCircuitBuilder, BaseCircuitParams},
     AssignedValue,
 };
-//pub use halo2_ecc;
+pub use halo2_ecc;
+
 use halo2_proofs::{
     dev::MockProver,
     halo2curves::bn256::{Bn256, Fr, G1Affine},
@@ -48,7 +49,7 @@ use vm_circuit::proof_vm_circuit_kzg;
 #[cfg(all(target_family = "wasm", feature = "rayon"))]
 pub use wasm_bindgen_rayon::init_thread_pool;
 
-//pub mod halo2lib;
+pub mod halo2lib;
 mod vkey;
 
 #[cfg(test)]
@@ -174,6 +175,8 @@ pub struct Halo2Wasm {
     #[wasm_bindgen(skip)]
     pub circuit: Rc<RefCell<VmCircuit<Fr>>>,
     #[wasm_bindgen(skip)]
+    pub builder: Rc<RefCell<BaseCircuitBuilder<Fr>>>,
+    #[wasm_bindgen(skip)]
     pub public: Vec<Vec<AssignedValue<Fr>>>,
     #[wasm_bindgen(skip)]
     pub circuit_params: Option<BaseCircuitParams>,
@@ -185,8 +188,10 @@ pub struct Halo2Wasm {
 impl Default for Halo2Wasm {
     fn default() -> Self {
         let circuit = VMWasm::new().circuit.expect("get circuit info");
+        let builder = BaseCircuitBuilder::new(false);
         Halo2Wasm {
             circuit: Rc::new(RefCell::new(circuit)),
+            builder: Rc::new(RefCell::new(builder)),
             public: vec![],
             circuit_params: None,
             params: None,
@@ -204,11 +209,11 @@ impl Halo2Wasm {
     }
 
     pub fn clear(&mut self) {
-        // let circuit_params = self.circuit_params.clone().unwrap();
-        // let circuit = BaseCircuitBuilder::new(false).use_params(circuit_params);
-        // let circuit_cell = &self.circuit;
-        // circuit_cell.replace(circuit);
-        // self.clear_instances();
+        let circuit_params = self.circuit_params.clone().unwrap();
+        let circuit = BaseCircuitBuilder::new(false).use_params(circuit_params);
+        let circuit_cell = &self.builder;
+        circuit_cell.replace(circuit);
+        self.clear_instances();
     }
 
     #[wasm_bindgen(js_name = clearInstances)]
@@ -255,19 +260,19 @@ impl Halo2Wasm {
     }
 
     #[wasm_bindgen(js_name = setInstances)]
-    pub fn set_instances(&mut self, _instances: &[u32], _col: usize) {
-        // let instances: Vec<AssignedValue<Fr>> = instances
-        //     .iter()
-        //     .map(|x| {
-        //         self.circuit
-        //             .borrow_mut()
-        //             .main(0)
-        //             .get((*x).try_into().unwrap())
-        //     })
-        //     .collect();
-        // let public = self.public.get_mut(col).unwrap();
-        // public.clear();
-        // public.extend(instances);
+    pub fn set_instances(&mut self, instances: &[u32], col: usize) {
+        let instances: Vec<AssignedValue<Fr>> = instances
+            .iter()
+            .map(|x| {
+                self.builder
+                    .borrow_mut()
+                    .main(0)
+                    .get((*x).try_into().unwrap())
+            })
+            .collect();
+        let public = self.public.get_mut(col).unwrap();
+        public.clear();
+        public.extend(instances);
     }
 
     #[wasm_bindgen(js_name = getInstanceValues)]
@@ -301,13 +306,10 @@ impl Halo2Wasm {
 
     #[wasm_bindgen(js_name = getCircuitStats)]
     pub fn get_circuit_stats(&mut self) -> CircuitStats {
-        // let statistics = self.circuit.borrow_mut().statistics();
-        // let advice = statistics.gate.total_advice_per_phase[0];
-        // let lookup = statistics.total_lookup_advice_per_phase[0];
-        // let fixed = statistics.gate.total_fixed;
-        let advice = 0;
-        let lookup = 0;
-        let fixed = 0; 
+        let statistics = self.builder.borrow_mut().statistics();
+        let advice = statistics.gate.total_advice_per_phase[0];
+        let lookup = statistics.total_lookup_advice_per_phase[0];
+        let fixed = statistics.gate.total_fixed;
         let k = self.circuit_params.clone().unwrap().k;
         let instance = concat(self.public.clone()).len();
 
@@ -361,8 +363,8 @@ impl Halo2Wasm {
 
     #[wasm_bindgen(js_name = assignInstances)]
     pub fn assign_instances(&mut self) {
-        // let flattened: Vec<AssignedValue<Fr>> = concat(self.public.clone());
-        // self.circuit.borrow_mut().assigned_instances = vec![flattened];
+        let flattened: Vec<AssignedValue<Fr>> = concat(self.public.clone());
+        self.builder.borrow_mut().assigned_instances = vec![flattened];
     }
 
     pub fn mock(&mut self) {
@@ -432,14 +434,6 @@ impl Halo2Wasm {
         let proof =
             proof_vm_circuit_kzg(circuit, &[&[Fr::zero()]], &params, pk).expect("gen proof failed");
         proof
-        // let params = self.params.as_ref().unwrap();
-        // let pk = self.pk.as_ref().unwrap();
-        // let circuit = self.circuit.borrow().deep_clone();
-        // let proof =
-        //     proof_vm_circuit_kzg(circuit, &[&[Fr::zero()]], &params, pk.clone()).expect("gen proof failed");
-        // proof
-        // let snark = gen_snark_shplonk(params, pk, circuit, None::<&str>);
-        // snark.proof
     }
 
     /// For console logging only.

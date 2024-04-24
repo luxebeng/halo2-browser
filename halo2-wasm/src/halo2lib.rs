@@ -47,12 +47,12 @@ impl Halo2LibWasm {
         let lookup_bits = circuit.circuit_params.clone().unwrap().lookup_bits.unwrap();
         let range = RangeChip::new(
             lookup_bits,
-            circuit.circuit.borrow().lookup_manager().clone(),
+            circuit.builder.borrow().lookup_manager().clone(),
         );
         Halo2LibWasm {
             gate,
             range,
-            builder: Rc::clone(&circuit.circuit),
+            builder: Rc::clone(&circuit.builder),
         }
     }
 

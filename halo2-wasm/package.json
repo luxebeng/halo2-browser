@@ -1,6 +1,6 @@
 {
-  "name": "@zkmove-wasm",
-  "description": "zkmove wasm bindings",
+  "name": "@axiom-crypto/halo2-wasm",
+  "description": "Halo2 wasm bindings",
   "version": "0.3.4",
   "main": "index.js",
   "types": "index.d.ts",
@@ -19,6 +19,6 @@
   },
   "devDependencies": {
     "@types/node": "^20.8.5",
-    "typescript": "^5.2.2"
+    "typescript": "^5.4.5"
   }
 }
